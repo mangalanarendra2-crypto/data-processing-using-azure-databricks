@@ -1,0 +1,37 @@
+# config/config.yaml
+# ----------------------------------------------------------------------------
+# Central configuration for the pipeline. Keeping paths/names here (instead of
+# hard-coding them in every notebook) makes it trivial to promote the same
+# code from a "dev" environment to "staging"/"prod" by just swapping this file
+# or overriding values with Databricks widgets / job parameters.
+# ----------------------------------------------------------------------------
+
+environment: dev
+
+# On Databricks these would typically point at Unity Catalog volumes / ADLS
+# paths, e.g. "/Volumes/main/sales/raw" or "abfss://container@account.dfs.core.windows.net/raw".
+# Locally, they resolve to plain folders under ./data so the pipeline can be
+# tested without a live workspace.
+paths:
+  raw: "data/raw"
+  bronze: "data/lake/bronze"
+  silver: "data/lake/silver"
+  gold: "data/lake/gold"
+  checkpoints: "data/checkpoints"
+
+# Unity Catalog-style three-level names (catalog.schema.table). If Unity
+# Catalog isn't enabled in your workspace, the notebooks fall back to plain
+# database.table names using just "schema.table".
+catalog: main
+schema: retail_sales
+
+tables:
+  bronze: sales_bronze
+  silver: sales_silver
+  gold_daily: sales_daily_summary
+  gold_by_region: sales_by_region
+
+# Data quality thresholds used in the silver layer
+data_quality:
+  max_null_rate: 0.05       # abort/warn if more than 5% of rows have nulls in key columns
+  min_valid_amount: 0.0     # sale amount must be >= this
